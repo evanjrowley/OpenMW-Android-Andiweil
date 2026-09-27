@@ -569,6 +569,20 @@ class MainActivity : AppCompatActivity() {
 
                 plugins.mods
                     .filter { it.enabled && ModsPaths.fileExistsIn(it.filename, activeDataFilesList) }
+                    // The vanilla masters must load in dependency order no
+                    // matter where they sit in the plugin list: the list
+                    // scans alphabetically, and Bloodmoon.esm sorting before
+                    // Morrowind.esm made the engine quit at startup ("fails
+                    // to load Bloodmoon.esm: requires Morrowind.esm").
+                    // sortedBy is stable, so mod ordering is preserved.
+                    .sortedBy { plugin ->
+                        when (plugin.filename.lowercase()) {
+                            "morrowind.esm" -> 0
+                            "tribunal.esm" -> 1
+                            "bloodmoon.esm" -> 2
+                            else -> 3
+                        }
+                    }
                     .forEach { append("content=${it.filename}\n") }
 
                 groundcovers.mods

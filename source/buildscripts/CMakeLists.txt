@@ -234,6 +234,12 @@ ExternalProject_Add(openal
         -DALSOFT_NO_CONFIG_UTIL=ON
         -DALSOFT_BACKEND_OPENSL=ON
         -DALSOFT_BACKEND_WAVE=OFF
+        # find_path() can miss NDK sysroot headers; without this hint
+        # OpenAL silently builds null-audio-only and the engine opens the
+        # "No Output" device (no sound at all). setup-ndk.sh symlinks
+        # toolchain/$ARCH/sysroot to the NDK sysroot.
+        -DOPENSL_INCLUDE_DIR=${CMAKE_SOURCE_DIR}/toolchain/${ARCH}/sysroot/usr/include
+        -DOPENSL_ANDROID_INCLUDE_DIR=${CMAKE_SOURCE_DIR}/toolchain/${ARCH}/sysroot/usr/include
 
         BUILD_COMMAND ${wrapper_command} $(MAKE)
 
