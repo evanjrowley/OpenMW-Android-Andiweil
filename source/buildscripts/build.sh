@@ -236,6 +236,16 @@ if [[ $DEPLOY_RESOURCES = "true" ]]; then
 	grep -v -e "^data-local=" -e "^user-data=" "$SRC/openmw.cfg" >> "$DST/openmw/openmw.base.cfg"
 	cat "$DIR/../app/openmw.base.cfg" >> "$DST/openmw/openmw.base.cfg"
 
+	# Register the vanilla archives: menu textures, title art, icons and the
+	# intro movies live in the BSAs, and nothing else registers them (the
+	# Morrowind.ini [Archives] entries convert to dead "fallback=" lines the
+	# engine logs as "Ignoring unknown fallback"). Archives missing from a
+	# data dir are skipped with a warning by the engine, so listing all
+	# three unconditionally is safe.
+	echo "fallback-archive=Morrowind.bsa" >> "$DST/openmw/openmw.base.cfg"
+	echo "fallback-archive=Tribunal.bsa" >> "$DST/openmw/openmw.base.cfg"
+	echo "fallback-archive=Bloodmoon.bsa" >> "$DST/openmw/openmw.base.cfg"
+
 	# Immutable engine marker consumed by app/build.gradle. Prevents accidentally
 	# packaging a stale pre-0.51 libopenmw.so after this upgrade.
 	cat > "$DST/openmw/openmw-engine-version.txt" <<'EOF'
