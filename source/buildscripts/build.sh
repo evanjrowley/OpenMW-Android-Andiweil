@@ -129,8 +129,12 @@ echo "==========================================================================
 echo "(Please run ./clean.sh manually if you modify any of the options)"
 echo ""
 
-echo "==> Download and set up the NDK"
-./include/download-ndk.sh
+echo "==> Set up the NDK"
+# With ANDROID_NDK_ROOT set (Nix flake / CI), skip downloading a private
+# toolchain copy; setup-ndk.sh wires the compatibility wrappers to it.
+if [[ -z "${ANDROID_NDK_ROOT:-}" ]]; then
+	./include/download-ndk.sh
+fi
 ./include/setup-ndk.sh
 ./include/setup-icu.sh
 
@@ -219,7 +223,7 @@ if [[ $DEPLOY_RESOURCES = "true" ]]; then
 	# Do not strip every data= line as the old CaveBros pipeline did; remove
 	# only data-local and preserve the internal vfs-mw entry. MainActivity
 	# rewrites it to the writable Android resource mirror at runtime.
-	grep -v '^data-local=' "$SRC/openmw.cfg" >> "$DST/openmw/openmw.base.cfg"
+	grep -v -e "^data-local=" -e "^user-data=" "$SRC/openmw.cfg" >> "$DST/openmw/openmw.base.cfg"
 	cat "$DIR/../app/openmw.base.cfg" >> "$DST/openmw/openmw.base.cfg"
 
 	# Immutable engine marker consumed by app/build.gradle. Prevents accidentally

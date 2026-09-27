@@ -706,6 +706,34 @@ class MainActivity : AppCompatActivity() {
             !coreFragmentHeader.isFile ||
             !esmFallbacksScript.isFile ||
             !bundledAdjustments.isFile) {
+            // OPENMW_ANDROID_ANDIWEILI_DIAG: identify the failing gate
+            val missing = listOf(
+                "DEFAULTS_BIN" to File(Constants.DEFAULTS_BIN),
+                "OPENMW_BASE_CFG" to File(Constants.OPENMW_BASE_CFG),
+                "RESOURCES_DIR" to File(Constants.RESOURCES),
+                "version" to File(Constants.RESOURCES, "version"),
+                "fullscreen_tri.vert" to fullscreenShader,
+                "shadowcasting.vert" to shadowShader,
+                "shadows_fragment.glsl" to shadowFragmentShader,
+                "debug.vert" to debugVert,
+                "debug.frag" to debugFrag,
+                "objects.vert" to objectsVertexShader,
+                "objects.frag" to objectsFragmentShader,
+                "terrain.vert" to terrainVertexShader,
+                "terrain.frag" to terrainFragmentShader,
+                "groundcover.vert" to groundcoverVertexShader,
+                "bs/default.vert" to bsDefaultVertexShader,
+                "bs/default.frag" to bsDefaultFragmentShader,
+                "bs/nolighting.vert" to bsNoLightingVertexShader,
+                "fog.glsl" to fogShader,
+                "lib/core/vertex.h.glsl" to coreVertexHeader,
+                "lib/core/fragment.h.glsl" to coreFragmentHeader,
+                "esmfallbacks.lua" to esmFallbacksScript,
+                "adjustments.omwfx" to bundledAdjustments
+            ).filter { !it.second.exists() }
+                .joinToString(", ") { it.first }
+            Log.e("OpenMW-Andiweli-Diag", "staticFiles: missing/failed files: $missing" +
+                " RESOURCES=" + Constants.RESOURCES + " GLOBAL_CONFIG=" + Constants.GLOBAL_CONFIG)
             return false
         }
 

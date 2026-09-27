@@ -20,11 +20,12 @@
 
 package file.utils
 
+import android.content.Context
+import android.content.res.AssetManager
+import android.util.Log
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
-
-import android.content.Context
 
 /**
  * Helper class to handle copying assets to the storage
@@ -63,15 +64,18 @@ class CopyFilesFromAssets(private val context: Context) {
      */
     private fun copyFile(src: String, dst: String) {
         try {
-            val inp = context.assets.open(src)
-            val out = FileOutputStream(dst)
-
-            inp.copyTo(out)
-            out.flush()
-
-            inp.close()
-            out.close()
+            // ACCESS_BUFFER reads the (possibly deflated) asset fully into
+            // memory before opening it; the plain streaming path has been
+            // observed to hand back empty streams for small assets, which
+            // silently produced truncated runtime files.
+            val inp = context.assets.open(src, AssetManager.ACCESS_BUFFER)
+            FileOutputStream(dst).use { out ->
+                inp.use { it.copyTo(out) }
+                out.flush()
+                out.fd.sync()
+            }
         } catch (e: IOException) {
+            Log.e("CopyFilesFromAssets", "Failed to copy asset $src to $dst", e)
         }
     }
 }

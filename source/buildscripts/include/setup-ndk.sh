@@ -11,8 +11,19 @@ export CCACHE="${CCACHE:-false}"
 source ./include/version.sh
 
 TOOLCHAIN_ROOT="toolchain"
-NDK_ROOT="$TOOLCHAIN_ROOT/ndk"
 ARCH_ROOT="$TOOLCHAIN_ROOT/$ARCH"
+
+# Prefer a caller-provided NDK (Nix flake / CI) over a downloaded copy.
+if [[ -n "${ANDROID_NDK_ROOT:-}" ]]; then
+    NDK_ROOT="$ANDROID_NDK_ROOT"
+    # Legacy references (the CMake toolchain file path in CMakeLists.txt and
+    # the wrapper PATH) go through toolchain/ndk - point it at the provided
+    # NDK instead of a downloaded copy.
+    mkdir -p "$TOOLCHAIN_ROOT"
+    ln -sfn "$NDK_ROOT" "$TOOLCHAIN_ROOT/ndk"
+else
+    NDK_ROOT="$TOOLCHAIN_ROOT/ndk"
+fi
 
 if [[ ! -d "$NDK_ROOT" ]]; then
     mkdir -p "$TOOLCHAIN_ROOT"

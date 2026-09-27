@@ -5,7 +5,8 @@ jniLibs
 local.properties
 *.iml
 obj
-assets
+assets/libopenmw/
+!assets/android_omwfx/
 .gdb_history
 app/wrap
 fabric.properties
