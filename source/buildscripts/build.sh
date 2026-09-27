@@ -210,6 +210,16 @@ if [[ $DEPLOY_RESOURCES = "true" ]]; then
 	DST=$DIR/../app/src/main/assets/libopenmw/
 	SRC=build/$ARCH/openmw-prefix/src/openmw-build/
 
+	# Apply the final release shader overlays to the built resources: the
+	# patch chain patches the SOURCE tree, but OpenMW's build copies its
+	# resources at configure time, so overlays must be re-applied here.
+	OVERLAY=$DIR/patches/openmw051-final/shader-overlays/compatibility
+	if [ -d "$OVERLAY" ]; then
+		cp "$OVERLAY"/*.frag "$OVERLAY"/*.vert "$SRC/resources/shaders/compatibility/" 2>/dev/null || true
+		mkdir -p "$SRC/resources/shaders/compatibility/bs"
+		cp "$OVERLAY"/bs/*.frag "$OVERLAY"/bs/*.vert "$SRC/resources/shaders/compatibility/bs/" 2>/dev/null || true
+	fi
+
 	rm -rf "$DST" && mkdir -p "$DST"
 
 	# resources
